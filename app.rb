@@ -1,5 +1,5 @@
 require 'telegram/bot'
-require './lib/MinifiedExpressions'
+require './lib/minified_expressions'
 
 token = '1037457443:AAHWAVRxWLvb5oDRyYuUmZM70KOCxs_vbRo'
 
