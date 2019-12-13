@@ -1,31 +1,12 @@
 require 'telegram/bot'
-require './lib/minified_expressions'
+Dir['./lib/*.rb'].each do |file| require file end
+
+# Rework Methods
+# Check if minified_expressions can handle bot connection
 
 token = '1037457443:AAHWAVRxWLvb5oDRyYuUmZM70KOCxs_vbRo'
 
 b = BotCalls.new
-
-# Flow Methods
-def start(bot)
-  bot.send('Hello there traveler, ready to start the journey?')
-  bot.send('If you are new to this bot, please consider running the /help command to familiarize yourself with this bot')
-  # Generates new Session
-end
-
-def help(bot)
-  bot.send('To roll a dice, run /roll followed by the type of dice you wanna roll; for example: /roll 10 to roll a 10 faced die')
-  bot.send('To end the session, run /end')
-end
-
-def roll(bot, msg)
-  dice = msg.split(' ')[1].to_i
-  bot.send(rand(1..dice))
-end
-
-def stop(bot)
-  bot.send('Until we see next time travelers')
-  # Destroys current Session
-end
 
 # Catch Methods
 def unknown_command(bot)
@@ -44,17 +25,43 @@ Telegram::Bot::Client.run(token) do |bot|
     b.msg = message
     case message.text
     when '/start'
-      start(b)
+      b.send('Hello there traveler, ready to start the journey?')
+      b.send('If you are new to this bot, please consider running the /help command to familiarize yourself with this bot')
+      # Generates new Session
     when '/help'
-      help(b)
+      b.send('To roll a dice, run /roll followed by the type of dice you wanna roll; for example: /roll 10 to roll a 10 faced die')
+      b.send('To create a new character, run the command /create')
+      b.send('To end the session, run /end')
     when /^\/roll/
       if message.text.match(/4|6|8|10|12|20|100$/)
-        roll(b, message.text)
+        b.send(rand(1..message.text.split(' ')[1].to_i))
       else
         unknown_roll(b)
       end
+    when '/create'
+      c = Character.new
+      b.send("What's the character's name?")
+      bot.listen do |message|
+        p message.text
+        c.name = message.text
+        break
+      end
+      b.send("What's #{c.name}'s race?")
+      bot.listen do |message|
+        p message.text
+        c.race = message.text
+        break
+      end
+      b.send("Let's set #{c.name}'s stats!")
+      b.send("What's their ATK?")
+      bot.listen do |message|
+        p message.text
+        c.stats[:ATK] = message.text.to_i
+        break
+      end
     when '/stop'
-      stop(b)
+      b.send('Until we see next time travelers')
+      # Destroys current Session
     else
       unknown_command(b)
     end
