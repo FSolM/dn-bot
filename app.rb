@@ -6,7 +6,7 @@ Dir['./lib/*.rb'].each do |file| require file end
 
 token = '1037457443:AAHWAVRxWLvb5oDRyYuUmZM70KOCxs_vbRo'
 
-general_stats = [:ATK, :DEF, :AGL, :DEX, :INT, :CHA]
+general_stats = %i[:ATK, :DEF, :AGL, :DEX, :INT, :CHA]
 
 b = BotCalls.new
 
