@@ -6,6 +6,8 @@ Dir['./lib/*.rb'].each do |file| require file end
 
 token = '1037457443:AAHWAVRxWLvb5oDRyYuUmZM70KOCxs_vbRo'
 
+general_stats = [:ATK, :DEF, :AGL, :DEX, :INT, :CHA]
+
 b = BotCalls.new
 
 # Catch Methods
@@ -41,24 +43,24 @@ Telegram::Bot::Client.run(token) do |bot|
     when '/create'
       c = Character.new
       b.send("What's the character's name?")
-      bot.listen do |message|
-        p message.text
-        c.name = message.text
+      bot.listen do |msg|
+        c.name = msg.text
         break
       end
       b.send("What's #{c.name}'s race?")
-      bot.listen do |message|
-        p message.text
-        c.race = message.text
+      bot.listen do |msg|
+        c.race = msg.text
         break
       end
       b.send("Let's set #{c.name}'s stats!")
-      b.send("What's their ATK?")
-      bot.listen do |message|
-        p message.text
-        c.stats[:ATK] = message.text.to_i
-        break
+      general_stats.each do |stat|
+        b.send("What's their #{stat}?")
+        bot.listen do |msg|
+          c.stats[stat] = msg.text.to_i
+          break
+        end
       end
+      b.send("#{c.name} has been saved!")
     when '/stop'
       b.send('Until we see next time travelers')
       # Destroys current Session
