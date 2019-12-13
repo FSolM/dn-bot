@@ -1,0 +1,22 @@
+AllCops:
+  DisplayCopNames: true
+
+Metrics/LineLength:
+  Max: 150
+Metrics/MethodLength:
+  Max: 50
+Metrics/AbcSize:
+  Max: 75
+Metrics/ClassLength:
+  Max: 250
+
+Style/Documentation:
+  Enabled: false
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Layout/ExtraSpacing:
+  AllowForAlignment: false
+Layout/MultilineMethodCallIndentation:
+  Enabled: true
+  EnforcedStyle: indented
