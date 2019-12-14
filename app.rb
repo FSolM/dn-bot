@@ -10,6 +10,7 @@ token = '1037457443:AAHWAVRxWLvb5oDRyYuUmZM70KOCxs_vbRo'
 general_stats = %i[ATK DEF AGL DEX INT CHA]
 
 b = BotCalls.new
+s = Session.new
 
 # Catch Methods
 def unknown_command(b)
@@ -35,16 +36,15 @@ Telegram::Bot::Client.run(token) do |bot|
     when '/start'
       b.send('Hello there traveler, ready to start the journey?')
       b.send('If you are new to this bot, please consider running the /help command to familiarize yourself with this bot')
-      s = Session.new
     when '/help'
       b.send('To roll a dice, run /roll followed by the type of dice you wanna roll; for example: /roll 10 to roll a 10 faced die')
       b.send('To create a new character, run the command /create')
       b.send("To delete an existing character, run /delete followed by the character's name")
       b.send("To reset a character stat, run /set followed by the character's name, and stat")
       b.send("To either add or remove from an existing value, use the /mod command, followed by the character's name, stat, and how much to add or delete; for example /mod John Doe health -1")
-      b.send("/set & /mod can also be used to tweak the health of a character, instead of the attribute to modify, use health")
+      b.send('/set & /mod can also be used to tweak the health of a character, instead of the attribute to modify, use health')
       b.send('To end the session, run /end')
-    when /^\/roll/
+    when %r{^/roll}
       if message.text.match(/4|6|8|10|12|20|100$/)
         b.send(rand(1..message.text.split(' ')[1].to_i))
       else
@@ -76,7 +76,7 @@ Telegram::Bot::Client.run(token) do |bot|
       end
       s.add_char(c)
       b.send("#{c.name} has been saved!")
-    when /^\/delete/
+    when %r{^/delete}
       b.send("So you've chosen death")
       char_name = message.text.split(' ').shift.join(' ')
       if s.exist?(char_name)
@@ -85,9 +85,8 @@ Telegram::Bot::Client.run(token) do |bot|
       else
         unknown_char(b)
       end
-    when /^\/set/
+    when %r{^/set}
       b.send("Are you sure you're not cheating?")
-      char
     when '/stop'
       b.send('Until we see next time travelers')
       s.close
