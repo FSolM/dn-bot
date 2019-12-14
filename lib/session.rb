@@ -6,21 +6,23 @@ class Session
     @char_list = []
   end
 
+  def close
+    @char_list = nil
+  end
+
   def add_char(character)
     @char_list.add(character)
   end
 
-  def delete_char(character)
+  def delete_char(char_name)
     @char_list.each_with_index do |char, index|
-      if character == char
-        @char_list.delete_at(index)
-        return true
-      end
+      @char_list.delete_at(index) if char_name == char.name
     end
-    false
   end
 
-  def exists?(character)
-    @char_list.include?(character)
+  def exists?(char_name)
+    @char_list.each do |char|
+      return true if char_name == char.name
+    end
   end
 end
