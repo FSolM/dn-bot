@@ -10,8 +10,12 @@ class Session
     @char_list = nil
   end
 
+  def show
+    @char_list
+  end
+
   def add_char(character)
-    @char_list.add(character)
+    @char_list << character
   end
 
   def delete_char(char_name)

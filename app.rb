@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'telegram/bot'
 Dir['./lib/*.rb'].each { |file| require file }
 
@@ -38,6 +40,7 @@ Telegram::Bot::Client.run(token) do |bot|
       b.send('If you are new to this bot, please consider running the /help command to familiarize yourself with this bot')
     when '/help'
       b.send('To roll a dice, run /roll followed by the type of dice you wanna roll; for example: /roll 10 to roll a 10 faced die')
+      b.send('To show party, use the /show command')
       b.send('To create a new character, run the command /create')
       b.send("To delete an existing character, run /delete followed by the character's name")
       b.send("To reset a character stat, run /set followed by the character's name, and stat")
@@ -50,11 +53,24 @@ Telegram::Bot::Client.run(token) do |bot|
       else
         unknown_roll(b)
       end
+    when '/show'
+      if s.show.length.positive?
+        s.show.each do |char|
+          b.send(char.name)
+          b.send(char.race)
+          general_stats.each do |stat|
+            b.send("#{stat}: #{char.stats[stat]}")
+          end
+        end
+      else
+        b.send("It's dangerous to go alone")
+        b.send('To add a new party member, use the /create command')
+      end
     when '/create'
       c = Character.new
       b.send("What's the character's name?")
       bot.listen do |msg|
-        if msg.text != s.exist?(msg.text)
+        if msg.text != s.exists?(msg.text)
           c.name = msg.text
           break
         else
@@ -79,7 +95,7 @@ Telegram::Bot::Client.run(token) do |bot|
     when %r{^/delete}
       b.send("So you've chosen death")
       char_name = message.text.split(' ').shift.join(' ')
-      if s.exist?(char_name)
+      if s.exists?(char_name)
         s.delete_char(char_name)
         b.send("#{char_name} is no more")
       else
