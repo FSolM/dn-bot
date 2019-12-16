@@ -68,8 +68,8 @@ Telegram::Bot::Client.run(token.id) do |bot|
         unknown_roll(b)
       end
     when '/show'
-      if s.show.length.positive?
-        s.show.each do |char|
+      if s.char_list.length.positive?
+        s.char_list.each do |char|
           b.send(char.name)
           b.send(char.race)
           general_stats.each do |stat|

@@ -17,32 +17,4 @@ class Character
     }
     @health = 20
   end
-
-  def mod_atk(value)
-    @stats[:ATK] += value
-  end
-
-  def mod_def(value)
-    @stats[:DEF] += value
-  end
-
-  def mod_agl(value)
-    @stats[:AGL] += value
-  end
-
-  def mod_dex(value)
-    @stats[:DEX] += value
-  end
-
-  def mod_int(value)
-    @stats[:INT] += value
-  end
-
-  def mod_cha(value)
-    @stats[:CHA] += value
-  end
-
-  def mod_health(value)
-    @health += value
-  end
 end

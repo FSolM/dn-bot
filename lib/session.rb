@@ -2,16 +2,14 @@
 
 # This class generates a new session when the bot is started; it'll work as an storage for characters
 class Session
+  attr_reader :char_list
+
   def initialize
     @char_list = []
   end
 
   def close
     @char_list = nil
-  end
-
-  def show
-    @char_list
   end
 
   def add_char(character)
@@ -27,7 +25,7 @@ class Session
   def update_char(char_name, attribute, value)
     char = update_value(get_char(char_name), attribute, value)
     delete_char(char_name)
-    add_char(char) 
+    add_char(char)
   end
 
   def mod_char(char_name, attribute, value)
@@ -40,9 +38,11 @@ class Session
     @char_list.each do |char|
       return true if char_name == char.name
     end
+    false
   end
 
   private
+
   def get_char(char_name)
     @char_list.each do |char|
       return char if char_name == char.name
@@ -50,12 +50,12 @@ class Session
   end
 
   def update_value(char, attribute, value)
-    attribute == 'health' ? char.health = value : char.stats[attribute] = value
+    attribute == 'health' ? char.health = value : char.stats[attribute.to_sym] = value
     char
   end
 
   def mod_value(char, attribute, value)
-    attribute == 'health' ? char.health += value : char.stats[attribute] += value
+    attribute == 'health' ? char.health += value : char.stats[attribute.to_sym] += value
     char
   end
 end
