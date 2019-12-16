@@ -25,7 +25,7 @@ class Session
   def update_char(char_name, attribute, value)
     char = update_value(get_char(char_name), attribute, value)
     delete_char(char_name)
-    add_char(char) 
+    add_char(char)
   end
 
   def mod_char(char_name, attribute, value)
@@ -41,6 +41,7 @@ class Session
   end
 
   private
+
   def get_char(char_name)
     @char_list.each do |char|
       return char if char_name == char.name
