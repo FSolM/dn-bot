@@ -3,50 +3,64 @@
 require 'telegram/bot'
 Dir['./lib/*.rb'].each { |file| require file }
 
-# Rework Methods
-# Check if minified_expressions can handle bot connection
-# Make a general method for checking if selected character exist in a session
-
-token = '1037457443:AAHWAVRxWLvb5oDRyYuUmZM70KOCxs_vbRo'
+token = Token.new
 
 general_stats = %i[ATK DEF AGL DEX INT CHA]
 
 b = BotCalls.new
 s = Session.new
 
+def start(bot)
+  bot.send('Hello there traveler, ready to start the journey?')
+  bot.send('If you are new to this bot, please consider running the /help command to familiarize yourself with this bot')
+end
+
+def help(bot)
+  bot.send('To roll a dice, run /roll followed by the type of dice you wanna roll; for example: /roll 10 to roll a 10 faced die')
+  bot.send('To show party, use the /show command')
+  bot.send('To create a new character, run the command /create')
+  bot.send("To delete an existing character, run /delete followed by the character's name")
+  bot.send("To reset a character stat, run /set followed by the character's name, and stat")
+  bot.send("To either add or remove from an existing value, use the /mod command, followed by the character's name, stat, and how much to add or delete; for example /mod John Doe health -1")
+  bot.send('/set & /mod can also be used to tweak the health of a character, instead of the attribute to modify, use health')
+  bot.send('To end the session, run /end')
+end
+
+def show_alt_text(bot)
+  bot.send("It's dangerous to go alone")
+  bot.send('To add a new party member, use the /create command')
+end
+
 # Catch Methods
-def unknown_command(b)
-  b.send('Are you speaking in an ancient tongue?')
-  b.send('If you forgot a command, try running /help')
+def unknown_command(bot)
+  bot.send('Are you speaking in an ancient tongue?')
+  bot.send('If you forgot a command, try running /help')
 end
 
-def unknown_roll(b)
-  b.send('Seems like you tried an invalid roll')
-  b.send('You can roll 4, 6, 8, 10, 12, 20 and 100 faced dies')
+def unknown_roll(bot)
+  bot.send('Seems like you tried an invalid roll')
+  bot.send('You can roll 4, 6, 8, 10, 12, 20 and 100 faced dies')
 end
 
-def unknown_char(b)
-  b.send("This isn't the character that you're looking for...")
-  b.send("It seems like the bot couldn't find the specified character, check if you type it's name right")
+def unknown_char(bot)
+  bot.send('Perhaps the archives are incomplete...')
+  bot.send('Seems like the character you tried to search is not present in the party')
 end
 
-Telegram::Bot::Client.run(token) do |bot|
+def unknown_attr(bot)
+  bot.send("You can't do that! I'll shoot you or something")
+  bot.send('You can only modify an attribute or a health value')
+end
+
+Telegram::Bot::Client.run(token.id) do |bot|
   b.bot = bot
   bot.listen do |message|
     b.msg = message
     case message.text
     when '/start'
-      b.send('Hello there traveler, ready to start the journey?')
-      b.send('If you are new to this bot, please consider running the /help command to familiarize yourself with this bot')
+      start(b)
     when '/help'
-      b.send('To roll a dice, run /roll followed by the type of dice you wanna roll; for example: /roll 10 to roll a 10 faced die')
-      b.send('To show party, use the /show command')
-      b.send('To create a new character, run the command /create')
-      b.send("To delete an existing character, run /delete followed by the character's name")
-      b.send("To reset a character stat, run /set followed by the character's name, and stat")
-      b.send("To either add or remove from an existing value, use the /mod command, followed by the character's name, stat, and how much to add or delete; for example /mod John Doe health -1")
-      b.send('/set & /mod can also be used to tweak the health of a character, instead of the attribute to modify, use health')
-      b.send('To end the session, run /end')
+      help(b)
     when %r{^/roll}
       if message.text.match(/4|6|8|10|12|20|100$/)
         b.send(rand(1..message.text.split(' ')[1].to_i))
@@ -63,8 +77,7 @@ Telegram::Bot::Client.run(token) do |bot|
           end
         end
       else
-        b.send("It's dangerous to go alone")
-        b.send('To add a new party member, use the /create command')
+        show_alt_text(b)
       end
     when '/create'
       c = Character.new
@@ -103,6 +116,34 @@ Telegram::Bot::Client.run(token) do |bot|
       end
     when %r{^/set}
       b.send("Are you sure you're not cheating?")
+      arr = message.text.split(' ')
+      char_name = arr[1..(arr.length - 2)].join(' ')
+      if s.include?(char_name)
+        if arr[-2].match(/health/i)
+          update_char(char_name, 'health', arr[-1])
+        elsif arr[-2].match(/atk|def|agl|dex|int|cha/i)
+          update_char(char_name, arr[-2], arr[-1])
+        else
+          unknown_attr(b)
+        end
+      else
+        unknown_char(b)
+      end
+    when %r{^/mod}
+      b.send('Twice the pride, double the fall')
+      arr = message.text.split(' ')
+      char_name = arr[1..(arr.length - 2)].join(' ')
+      if s.include?(char_name)
+        if arr[-2].match(/health/i)
+          mod_char(char_name, 'health', arr[-1])
+        elsif arr[-2].match(/atk|def|agl|dex|int|cha/i)
+          mod_char(char_name, arr[-2], arr[-1])
+        else
+          unknown_attr(b)
+        end
+      else
+        unknown_char(b)
+      end
     when '/stop'
       b.send('Until we see next time travelers')
       s.close
