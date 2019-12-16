@@ -18,6 +18,7 @@ end
 def help(bot)
   bot.send('To roll a dice, run /roll followed by the type of dice you wanna roll; for example: /roll 10 to roll a 10 faced die')
   bot.send('To show party, use the /show command')
+  bot.send("To show just the party's health, use the /show command followed by health, like /show health")
   bot.send('To create a new character, run the command /create')
   bot.send("To delete an existing character, run /delete followed by the character's name")
   bot.send("To reset a character stat, run /set followed by the character's name, and stat")
@@ -67,13 +68,17 @@ Telegram::Bot::Client.run(token.id) do |bot|
       else
         unknown_roll(b)
       end
-    when '/show'
+    when %r{^/show}
       if s.char_list.length.positive?
-        s.char_list.each do |char|
-          b.send(char.name)
-          b.send(char.race)
-          general_stats.each do |stat|
-            b.send("#{stat}: #{char.stats[stat]}")
+        if message.text.match(/health$/i)
+          s.char_list.each { |char| b.send("#{char.name}: #{char.health}") }
+        else
+          s.char_list.each do |char|
+            b.send(char.name)
+            b.send(char.race)
+            general_stats.each do |stat|
+              b.send("#{stat}: #{char.stats[stat]}")
+            end
           end
         end
       else
@@ -117,12 +122,14 @@ Telegram::Bot::Client.run(token.id) do |bot|
     when %r{^/set}
       b.send("Are you sure you're not cheating?")
       arr = message.text.split(' ')
-      char_name = arr[1..(arr.length - 2)].join(' ')
-      if s.include?(char_name)
+      char_name = arr[1...(arr.length - 2)].join(' ')
+      if s.exists?(char_name)
         if arr[-2].match(/health/i)
-          update_char(char_name, 'health', arr[-1])
+          s.update_char(char_name, 'health', arr[-1].to_i)
+          b.send("Health modified to #{arr[-1].to_i}")
         elsif arr[-2].match(/atk|def|agl|dex|int|cha/i)
-          update_char(char_name, arr[-2], arr[-1])
+          s.update_char(char_name, arr[-2].upcase!, arr[-1].to_i)
+          b.send("#{arr[-2]} modified to #{arr[-1].to_i}")
         else
           unknown_attr(b)
         end
@@ -132,19 +139,21 @@ Telegram::Bot::Client.run(token.id) do |bot|
     when %r{^/mod}
       b.send('Twice the pride, double the fall')
       arr = message.text.split(' ')
-      char_name = arr[1..(arr.length - 2)].join(' ')
-      if s.include?(char_name)
+      char_name = arr[1...(arr.length - 2)].join(' ')
+      if s.exists?(char_name)
         if arr[-2].match(/health/i)
-          mod_char(char_name, 'health', arr[-1])
+          s.mod_char(char_name, 'health', arr[-1].to_i)
+          b.send("Health modified to #{arr[-1].to_i}")
         elsif arr[-2].match(/atk|def|agl|dex|int|cha/i)
-          mod_char(char_name, arr[-2], arr[-1])
+          s.mod_char(char_name, arr[-2].upcase!, arr[-1].to_i)
+          b.send("#{arr[-2]} modified to #{arr[-1].to_i}")
         else
           unknown_attr(b)
         end
       else
         unknown_char(b)
       end
-    when '/stop'
+    when '/end'
       b.send('Until we see next time travelers')
       s.close
     else
