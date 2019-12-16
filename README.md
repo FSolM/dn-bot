@@ -9,11 +9,17 @@ This bot was made using [atiplugin's telegram-bot-ruby](https://github.com/atipu
 
 To use the bot, change this line in `app.rb` with our own Token access code
 
-```
+```ruby
 token = Token.new
 ```
 
 And then simply compile the code
+
+You can also run the RSpec tests included by installing the RSPec gem and running
+
+```
+$ rspec
+```
 
 #### Created by:
 
