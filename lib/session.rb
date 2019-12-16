@@ -38,6 +38,7 @@ class Session
     @char_list.each do |char|
       return true if char_name == char.name
     end
+    false
   end
 
   private
@@ -49,12 +50,12 @@ class Session
   end
 
   def update_value(char, attribute, value)
-    attribute == 'health' ? char.health = value : char.stats[attribute] = value
+    attribute == 'health' ? char.health = value : char.stats[attribute.to_sym] = value
     char
   end
 
   def mod_value(char, attribute, value)
-    attribute == 'health' ? char.health += value : char.stats[attribute] += value
+    attribute == 'health' ? char.health += value : char.stats[attribute.to_sym] += value
     char
   end
 end
